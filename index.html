@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideNow - Taxi Booking Service</title>
+    <style>
+        :root {
+            --primary: #ff6b00;
+            --primary-hover: #e35f00;
+            --secondary: #333;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --danger: #dc3545;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/api/placeholder/1200/600');
+            background-size: cover;
+            background-position: center;
+            padding: 100px 0;
+            color: white;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .booking-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: -70px auto 50px;
+            max-width: 800px;
+            position: relative;
+        }
+        
+        .booking-steps {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .step.active .step-number {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 18px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: var(--light-gray);
+            z-index: 0;
+        }
+        
+        .booking-forms {
+            padding: 30px;
+        }
+        
+        .booking-form {
+            display: none;
+        }
+        
+        .booking-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d8dde2;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .taxi-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .taxi-option {
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            min-width: 200px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .taxi-option.selected {
+            border-color: var(--primary);
+        }
+        
+        .taxi-option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .taxi-type {
+            font-weight: 600;
+        }
+        
+        .taxi-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .taxi-details {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .confirmation-details {
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+        }
+        
+        .payment-options {
+            margin-top: 20px;
+        }
+        
+        .payment-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .payment-option input {
+            margin-right: 10px;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .trip-details {
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .driver-info {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .driver-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: var(--light);
+        }
+        
+        .driver-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .car-info {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        footer {
+            background-color: var(--secondary);
+            color: white;
+            padding: 40px 0;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .booking-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .step:not(:last-child)::after {
+                display: none;
+            }
+            
+            .taxi-options {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">RideNow</a>
+                <div class="nav-links">
+                    <a href="#">Home</a>
+                    <a href="#">About</a>
+                    <a href="#">Services</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Login</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Book Your Ride in Minutes</h1>
+            <p>Fast, reliable, and comfortable taxi service at your fingertips. Get to your destination safely with our professional drivers.</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="booking-container">
+            <div class="booking-steps">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Enter Location</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Choose Taxi</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Confirm & Pay</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Enjoy Your Ride</div>
+                </div>
+            </div>
+            
+            <div class="booking-forms">
+                <!-- Step 1: Enter Location -->
+                <div class="booking-form active" id="form1">
+                    <h2>Enter Your Pickup and Destination</h2>
+                    <div class="form-group">
+                        <label for="pickup" class="form-label">Pickup Location</label>
+                        <input type="text" id="pickup" class="form-control" placeholder="Enter your pickup address">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination" class="form-label">Destination</label>
+                        <input type="text" id="destination" class="form-control" placeholder="Enter your destination">
+                    </div>
+                    <div class="form-group">
+                        <label for="pickup-time" class="form-label">Pickup Time</label>
+                        <input type="datetime-local" id="pickup-time" class="form-control">
+                    </div>
+                    <div class="buttons">
+                        <div></div> <!-- Empty div for flex spacing -->
+                        <button class="btn" id="nextToStep2">Continue</button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Choose Taxi -->
+                <div class="booking-form" id="form2">
+                    <h2>Select Your Preferred Vehicle</h2>
+                    <div class="taxi-options">
+                        <div class="taxi-option" data-price="15">
+                            <div class="taxi-option-header">
+                                <div class="taxi-type">Economy</div>
+                                <div class="taxi-price">$15</div>
+                            </div>
+                            <div class="taxi-details">
+                                <p>Standard sedan | 4 passengers max</p>
+                                <p>Estimated arrival: 5 min</p>
+                            </div>
+                        </div>
+                        <div class="taxi-option" data-price="22">
+                            <div class="taxi-option-header">
+                                <div class="taxi-type">Comfort</div>
+                                <div class="taxi-price">$22</div>
+                            </div>
+                            <div class="taxi-details">
+                                <p>Premium sedan | 4 passengers max</p>
+                                <p>Estimated arrival: 8 min</p>
+                            </div>
+                        </div>
+                        <div class="taxi-option" data-price="35">
+                            <div class="taxi-option-header">
+                                <div class="taxi-type">SUV</div>
+                                <div class="taxi-price">$35</div>
+                            </div>
+                            <div class="taxi-details">
+                                <p>Spacious SUV | 6 passengers max</p>
+                                <p>Estimated arrival: 10 min</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Additional Options</label>
+                        <div class="payment-option">
+                            <input type="checkbox" id="child-seat">
+                            <label for="child-seat">Child seat (+$5)</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="checkbox" id="extra-luggage">
+                            <label for="extra-luggage">Extra luggage space (+$3)</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="checkbox" id="pet-friendly">
+                            <label for="pet-friendly">Pet friendly vehicle (+$2)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-secondary" id="backToStep1">Back</button>
+                        <button class="btn" id="nextToStep3">Continue</button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Confirm & Pay -->
+                <div class="booking-form" id="form3">
+                    <h2>Review and Confirm Your Booking</h2>
+                    
+                    <div class="confirmation-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Pickup:</div>
+                            <div class="detail-value" id="summary-pickup"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Destination:</div>
+                            <div class="detail-value" id="summary-destination"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Date & Time:</div>
+                            <div class="detail-value" id="summary-time"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Vehicle Type:</div>
+                            <div class="detail-value" id="summary-vehicle"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Additional Options:</div>
+                            <div class="detail-value" id="summary-options"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Estimated Price:</div>
+                            <div class="detail-value" id="summary-price"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <div class="payment-options">
+                            <div class="payment-option">
+                                <input type="radio" id="credit-card" name="payment" checked>
+                                <label for="credit-card">Credit Card</label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="paypal" name="payment">
+                                <label for="paypal">PayPal</label>
+                            </div>
+                            <div class="payment-option">
+                                <input type="radio" id="cash" name="payment">
+                                <label for="cash">Cash</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="card-details">
+                        <label for="card-number" class="form-label">Card Number</label>
+                        <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456">
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 15px;">
+                            <div style="flex: 1;">
+                                <label for="expiry" class="form-label">Expiry Date</label>
+                                <input type="text" id="expiry" class="form-control" placeholder="MM/YY">
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" id="cvv" class="form-control" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-secondary" id="backToStep2">Back</button>
+                        <button class="btn" id="confirmBooking">Confirm Booking</button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Enjoy Your Ride -->
+                <div class="booking-form" id="form4">
+                    <div class="success-message">
+                        <div class="success-icon">✓</div>
+                        <h2 class="success-title">Your Ride is Confirmed!</h2>
+                        <p>Your driver will arrive shortly at your pickup location.</p>
+                    </div>
+                    
+                    <div class="trip-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Booking ID:</div>
+                            <div class="detail-value" id="booking-id">RN78542169</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Estimated Arrival:</div>
+                            <div class="detail-value" id="arrival-time">5 minutes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="driver-info">
+                        <div class="driver-photo"></div>
+                        <div>
+                            <div class="driver-name">Michael Johnson</div>
+                            <div class="car-info">Toyota Camry • Black • ABC 1234</div>
+                            <div class="car-info">⭐ 4.9 (328 trips)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="buttons" style="justify-content: center; margin-top: 30px;">
+                        <button class="btn" onclick="location.reload()">Book Another Ride</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>RideNow</h3>
+                    <p>Your trusted partner for safe and reliable taxi services. Available 24/7 for your transportation needs.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Help & Support</h3>
+                    <ul>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Support Center</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li>Email: info@ridenow.com</li>
+                        <li>Phone: +91 620 140 1919 </li>
+                        <li>Address: Panitanki New Market</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 RideNow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Set default pickup time to current time + 15 minutes
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 15);
+        const formattedDateTime = now.toISOString().slice(0, 16);
+        document.getElementById('pickup-time').value = formattedDateTime;
+        
+        // Step navigation
+        const steps = document.querySelectorAll('.step');
+        const forms = document.querySelectorAll('.booking-form');
+        
+        function goToStep(stepNumber) {
+            // Update steps
+            steps.forEach((step, index) => {
+                if (index + 1 < stepNumber) {
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+            
+            // Show correct form
+            forms.forEach((form, index) => {
+                if (index + 1 === stepNumber) {
+                    form.classList.add('active');
+                } else {
+                    form.classList.remove('active');
+                }
+            });
+            
+            // If going to step 3, update summary
+            if (stepNumber === 3) {
+                updateSummary();
+            }
+        }
+        
+        // Step 1 to Step 2
+        document.getElementById('nextToStep2').addEventListener('click', () => {
+            const pickup = document.getElementById('pickup').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (!pickup || !destination) {
+                alert('Please enter both pickup and destination locations.');
+                return;
+            }
+            
+            goToStep(2);
+        });
+        
+        // Step 2 to Step 1
+        document.getElementById('backToStep1').addEventListener('click', () => {
+            goToStep(1);
+        });
+        
+        // Taxi selection
+        const taxiOptions = document.querySelectorAll('.taxi-option');
+        let selectedTaxiPrice = 0;
+        let selectedTaxiType = '';
+        
+        taxiOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                taxiOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedTaxiPrice = parseFloat(option.dataset.price);
+                selectedTaxiType = option.querySelector('.taxi-type').textContent;
+            });
+        });
+        
+        // Step 2 to Step 3
+        document.getElementById('nextToStep3').addEventListener('click', () => {
+            if (!selectedTaxiType) {
+                alert('Please select a vehicle type.');
+                return;
+            }
+            
+            goToStep(3);
+        });
+        
+        // Step 3 to Step 2
+        document.getElementById('backToStep2').addEventListener('click', () => {
+            goToStep(2);
+        });
+        
+        // Update summary on Step 3
+        function updateSummary() {
+            const pickup = document.getElementById('pickup').value;
+            const destination = document.getElementById('destination').value;
+            const pickupTime = new Date(document.getElementById('pickup-time').value);
+            const formattedTime = pickupTime.toLocaleString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            });
+            
+            document.getElementById('summary-pickup').textContent = pickup;
+            document.getElementById('summary-destination').textContent = destination;
+            document.getElementById('summary-time').textContent = formattedTime;
+            document.getElementById('summary-vehicle').textContent = selectedTaxiType;
+            
+            // Calculate additional options
+            let additionalCost = 0;
+            let optionsText = [];
+            
+            if (document.getElementById('child-seat').checked) {
+                additionalCost += 5;
+                optionsText.push('Child seat (+$5)');
+            }
+            
+            if (document.getElementById('extra-luggage').checked) {
+                additionalCost += 3;
+                optionsText.push('Extra luggage (+$3)');
+            }
+            
+            if (document.getElementById('pet-friendly').checked) {
+                additionalCost += 2;
+                optionsText.push('Pet friendly (+$2)');
+            }
+            
+            document.getElementById('summary-options').textContent = optionsText.length ? optionsText.join(', ') : 'None';
+            document.getElementById('summary-price').textContent = `$${(selectedTaxiPrice + additionalCost).toFixed(2)}`;
+        }
+        
+        // Toggle card details based on payment method
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const cardDetails = document.getElementById('card-details');
+                cardDetails.style.display = document.getElementById('credit-card').checked ? 'block' : 'none';
+            });
+        });
+        
+        // Confirm booking and go to Step 4
+        document.getElementById('confirmBooking').addEventListener('click', () => {
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').id;
+            
+            // Validate card details if credit card is selected
+            if (paymentMethod === 'credit-card') {
+                const cardNumber = document.getElementById('card-number').value;
+                const expiry = document.getElementById('expiry').value;
+                const cvv = document.getElementById('cvv').value;
+                
+                if (!cardNumber || !expiry || !cvv) {
+                    alert('Please enter all card details.');
+                    return;
+                }
+            }
+            
+            // Generate random arrival time between 3-10 minutes
+            const arrivalMinutes = Math.floor(Math.random() * 8) + 3;
+            document.getElementById('arrival-time').textContent = `${arrivalMinutes} minutes`;
+            
+            // Generate random booking ID
+            const bookingId = 'RN' + Math.floor(Math.random() * 90000000 + 10000000);
+            document.getElementById('booking-id').textContent = bookingId;
+            
+            goToStep(4);
+        });
+        
+        // Initialize with first taxi option selected
+        if (taxiOptions.length > 0) {
+            taxiOptions[0].click();
+        }
+    </script>
+</body>
+</html>
